@@ -1,0 +1,14 @@
+bin/
+.gradle/
+.settings/
+.project
+.classpath
+build/
+test-output/
+*/bin/
+*/.gradle/
+*/.settings/
+*/.project
+*/.classpath
+*/build/
+*/test-output/
