@@ -1,7 +1,5 @@
 package com.doctusoft.bff.resource;
 
-import java.util.List;
-
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.ResourceSupport;
 

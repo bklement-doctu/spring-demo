@@ -13,6 +13,6 @@ import com.netflix.hystrix.HystrixCommand;
 public interface ReviewClient {
 	
 	@RequestMapping(value = "/api/review/search", method = RequestMethod.GET)
-    HystrixCommand<PagedResources<ReviewResource>> searchReviewsByBookId(@RequestParam("itemId") String itemId);
+    HystrixCommand<PagedResources<ReviewResource>> searchReviewsByBookId(@RequestParam("bookId") String bookId);
 
 }

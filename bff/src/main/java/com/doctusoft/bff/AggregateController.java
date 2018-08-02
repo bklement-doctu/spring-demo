@@ -1,6 +1,5 @@
 package com.doctusoft.bff;
 
-import static com.doctusoft.bff.config.RabbitConfig.BOOK_EXCHANGE_NAME;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.http.ResponseEntity.status;
@@ -8,7 +7,6 @@ import static org.springframework.http.ResponseEntity.status;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.hateoas.Link;
@@ -30,7 +28,7 @@ public class AggregateController {
 	private AggregateService service;
 	
 	@RequestMapping(value = "/{bookId}", method = RequestMethod.GET)
-	public AggregateResource get(@PathVariable String bookId) {
+	public AggregateResource get(@PathVariable String bookId) throws InterruptedException {
 		AggregateResource resource = new AggregateResource(service.getBookById(bookId));
 		CountDownLatch latch = new CountDownLatch(2);
 		service.getInventory(bookId, ir -> {
@@ -40,16 +38,18 @@ public class AggregateController {
 				resource.setInStock(false);
 			}
 			latch.countDown();
-		}, t -> latch.countDown());
+		}, t -> { 
+			t.printStackTrace();
+			latch.countDown();
+		});
 		service.searchReviewsByBookId(bookId, pr -> {
 			resource.setReviews(pr);
 			latch.countDown();
-		}, t -> latch.countDown());
-		try {
-			latch.await(10, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			
-		}
+		}, t -> { 
+			t.printStackTrace();
+			latch.countDown();
+		});
+		latch.await(10, TimeUnit.SECONDS);
 		resource.add(createLink(bookId));
 		return resource;
 	}
@@ -66,7 +66,7 @@ public class AggregateController {
 		return status(HttpStatus.ACCEPTED).build();
 	}
 
-	private Link createLink(String id) {
+	private Link createLink(String id) throws InterruptedException {
 		return linkTo(methodOn(AggregateController.class).get(id)).withSelfRel();
 	}
 	

@@ -45,16 +45,16 @@ public class AggregateService {
 		rabbitTemplate.convertAndSend(BOOK_EXCHANGE_NAME, "delete", new BookDeleteEvent(id));
 	}
 	
+	public InventoryResource getInventory(String id) {
+		return inventoryClient.get(id).execute();
+	}
+	
 	public void getInventory(String id, Consumer<InventoryResource> callback, Consumer<Throwable> errorCallback) {
-		System.err.println("GetInventory Started");
 		inventoryClient.get(id).toObservable().subscribe(r -> callback.accept(r), t -> errorCallback.accept(t));
-		System.err.println("GetInventory Finished");
 	}
 	
 	public void searchReviewsByBookId(String id, Consumer<PagedResources<ReviewResource>> callback, Consumer<Throwable> errorCallback) {
-		System.err.println("GetReviews Started");
 		reviewClient.searchReviewsByBookId(id).toObservable().subscribe(r -> callback.accept(r), t -> errorCallback.accept(t));
-		System.err.println("GetReviews Finished");
 	}
 	
 	@Async
