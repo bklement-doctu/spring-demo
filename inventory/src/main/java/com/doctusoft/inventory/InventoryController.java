@@ -41,6 +41,13 @@ public class InventoryController {
 		return conversionService.convert(repository.getOne(id), InventoryResource.class);
 	}
 	
+	@RequestMapping(value = "/{id}/lock", method = RequestMethod.POST)
+	@Transactional
+	public void lock(@PathVariable String id) throws InterruptedException {
+		repository.findOneAndLock(id);
+		Thread.sleep(20000);
+	}
+	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<Void> put(@PathVariable String id, @RequestParam(required = false) Integer quantity) {
 		repository.save(new Inventory(id, quantity));
